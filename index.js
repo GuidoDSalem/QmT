@@ -11,7 +11,6 @@ var xhub = require('express-x-hub');
 // CONSTANTES
 
 const my_token = process.env.my_token;
-
 const PORT = 8000;
 
 // CONSTANTES TWILIIO
@@ -94,7 +93,7 @@ app.post("/webhook",(req,res)=>{
   console.log(JSON.stringify(req.body),null,2);
 
   const wpHandler = new WhatsAppHandler(req.body,res);
-  
+
   wpHandler.processWebhook();
 
 });

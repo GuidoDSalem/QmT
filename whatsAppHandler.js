@@ -13,8 +13,6 @@ class WhatsAppWebhookHandler {
         this.barerToken = process.env.TOKEN;
       }
 
-
-  
     processWebhook() {
       if (this.webhookData && this.webhookData.object === 'whatsapp_business_account') {
         const entries = this.webhookData.entry;
