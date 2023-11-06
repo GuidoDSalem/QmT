@@ -15,6 +15,9 @@ class WhatsAppWebhookHandler {
 
         this.phon_no_id=webhookData.entry[0].changes[0].value.metadata.phone_number_id;
         this.from = webhookData.entry[0].changes[0].value.messages[0].from; 
+
+        console.log("phone_no_id: " + this.phon_no_id)
+        console.log("from: " + this.from)
         
       }
 
@@ -30,35 +33,41 @@ class WhatsAppWebhookHandler {
   
             if (field === 'messages') {
               let msg_body = this.webhookData.entry[0].changes[0].value.messages[0].text.body;
+              console.log("msg_body: " + msg_body)
               const messagingProduct = value.messaging_product;
               const metadata = value.metadata;
               const displayPhoneNumber = metadata.display_phone_number;
               const phoneNumberId = metadata.phone_number_id;
 
-              axios({
-                method:"POST",
-                url:"https://graph.facebook.com/v17.0/"+this.phon_no_id+"/messages?access_token="+process.env.TOKEN,
-                data:{
-                    messaging_product:"whatsapp",
-                    to:this.from,
-                    text:{
-                        body:"Tu mensaje fue: "+msg_body
-                    }
-                },
-                headers:{
-                    "Content-Type":"application/json"
+              let data = JSON.stringify({
+                "messaging_product": "whatsapp",
+                "to": "54111530644307",
+                "type": "template",
+                "template": {
+                  "name": "Vamos los pibes",
+                  "language": {
+                    "code": "en_US"
+                  }
                 }
-
               });
+              let config = {
+                method:"POST",
+                url: 'https://graph.facebook.com/v17.0/'+this.phon_no_id+'/messages',
+                headers: { 
+                  'Content-Type': 'application/json', 
+                  'Authorization': 'Bearer '+this.barerToken
+                },
+                data:data,
+              }
 
-              this.response.status(200);
+              axios.request(config)
+              .then((response) => {
+                console.log(JSON.stringify(response.data));
+              })
+              .catch((error) => {
+                console.log(error);
+              });
               
-              // axios({
-              //   method:"POST",
-              //   url:"https://graph.facebook.com/v17.0/WHATSAPP_BUSINESS_ACCOUNT_ID/subscribed_apps"
-              // })
-              // Now you can handle the specific Webhooks payload here
-              // You have access to id, messagingProduct, displayPhoneNumber, phoneNumberId, and more
             }
             // Send a response to the client
             this.response.json({ message: "Webhook processed successfully" });
