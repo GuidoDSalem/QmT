@@ -3,14 +3,19 @@
  */
 
 const { default: axios } = require("axios");
-require('dotenv').config();
 const WhatsAppHandler = require('./whatsAppMessanger');
+require('dotenv').config();
+
 
 class WhatsAppWebhookHandler {
     constructor(webhookData, response) {
         this.webhookData = webhookData;
         this.response = response;
         this.barerToken = process.env.TOKEN;
+
+        this.phon_no_id=webhookData.entry[0].changes[0].value.metadata.phone_number_id;
+        this.from = webhookData.entry[0].changes[0].value.messages[0].from; 
+        
       }
 
     processWebhook() {
@@ -24,15 +29,34 @@ class WhatsAppWebhookHandler {
             const field = change.field;
   
             if (field === 'messages') {
+              let msg_body = this.webhookData.entry[0].changes[0].value.messages[0].text.body;
               const messagingProduct = value.messaging_product;
               const metadata = value.metadata;
               const displayPhoneNumber = metadata.display_phone_number;
               const phoneNumberId = metadata.phone_number_id;
-              
+
               axios({
                 method:"POST",
-                url:"https://graph.facebook.com/v17.0/WHATSAPP_BUSINESS_ACCOUNT_ID/subscribed_apps"
-              })
+                url:"https://graph.facebook.com/v17.0/"+this.phon_no_id+"/messages?access_token="+process.env.TOKEN,
+                data:{
+                    messaging_product:"whatsapp",
+                    to:this.from,
+                    text:{
+                        body:"Tu mensaje fue: "+msg_body
+                    }
+                },
+                headers:{
+                    "Content-Type":"application/json"
+                }
+
+              });
+
+              this.response.status(200);
+              
+              // axios({
+              //   method:"POST",
+              //   url:"https://graph.facebook.com/v17.0/WHATSAPP_BUSINESS_ACCOUNT_ID/subscribed_apps"
+              // })
               // Now you can handle the specific Webhooks payload here
               // You have access to id, messagingProduct, displayPhoneNumber, phoneNumberId, and more
             }

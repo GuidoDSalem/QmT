@@ -42,5 +42,5 @@ class WhatsAppMessanjer{
 
 }
 
-module.exports = WhatsAppWebhookHandler;
+module.exports = WhatsAppMessanjer;
   
